@@ -1,5 +1,21 @@
+/**
+ * ============================================================================
+ * question-generator.ts - 题目生成器
+ * ============================================================================
+ *
+ * [INPUT]: lib/game-types (Difficulty, Question 类型, generateId)
+ * [OUTPUT]: generateQuestions(), parseUserInput()
+ * [POS]: lib 模块的题目生成服务，被 hooks/use-game.ts 消费
+ *        根据难度生成不同类型的算术题，支持中文数字输入解析
+ * [PROTOCOL]: 变更时更新此头部，然后检查 lib/CLAUDE.md
+ */
+
 import type { Difficulty, Question } from './game-types'
 import { generateId } from './game-types'
+
+// ============================================================================
+// 类型定义
+// ============================================================================
 
 type Operation = '+' | '-' | '*' | '/'
 

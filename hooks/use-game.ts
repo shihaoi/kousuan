@@ -1,3 +1,16 @@
+/**
+ * ============================================================================
+ * use-game.ts - 游戏状态机 Hook
+ * ============================================================================
+ *
+ * [INPUT]: lib/game-types (类型+配置), lib/question-generator (题目生成),
+ *          lib/sounds (音效播放)
+ * [OUTPUT]: useGame() hook - 返回游戏状态和操作方法
+ * [POS]: hooks 模块的核心，被 components/game/game-container.tsx 消费
+ *        管理完整游戏生命周期：开始→答题→判定→结束
+ * [PROTOCOL]: 变更时更新此头部，然后检查 hooks/CLAUDE.md
+ */
+
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
@@ -20,6 +33,10 @@ import {
   playSpeedStarSound,
   playFinishSound,
 } from '@/lib/sounds'
+
+// ============================================================================
+// 游戏状态机 Hook
+// ============================================================================
 
 export function useGame() {
   const [game, setGame] = useState<GameRun | null>(null)

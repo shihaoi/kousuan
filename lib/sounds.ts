@@ -1,4 +1,19 @@
-// Web Audio API sound effects for the game
+/**
+ * ============================================================================
+ * sounds.ts - 音效系统
+ * ============================================================================
+ *
+ * [INPUT]: Web Audio API (浏览器原生)
+ * [OUTPUT]: playCorrectSound, playWrongSound, playComboSound, playShieldSound,
+ *           playBossSound, playSpeedStarSound, playFinishSound
+ * [POS]: lib 模块的音效服务，被 hooks/use-game.ts 消费
+ *        使用 Web Audio API 动态生成音调，无需加载音频文件
+ * [PROTOCOL]: 变更时更新此头部，然后检查 lib/CLAUDE.md
+ */
+
+// ============================================================================
+// AudioContext 管理
+// ============================================================================
 
 let audioContext: AudioContext | null = null
 
