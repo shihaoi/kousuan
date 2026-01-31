@@ -4,7 +4,7 @@
  * ============================================================================
  *
  * [INPUT]: lib/game-types (类型+配置), lib/question-generator (题目生成),
- *          lib/sounds (音效播放)
+ *          lib/sounds (音效播放), 浏览器 localStorage (本地历史)
  * [OUTPUT]: useGame() hook - 返回游戏状态和操作方法
  * [POS]: hooks 模块的核心，被 components/game/game-container.tsx 消费
  *        管理完整游戏生命周期：开始→答题→判定→结束
@@ -20,6 +20,7 @@ import {
   type Difficulty,
   type GameStats,
   type QuestionState,
+  type GameRunSummary,
   GAME_CONFIG,
   generateId,
   calculateQuestionScore,
@@ -38,10 +39,60 @@ import {
 // 游戏状态机 Hook
 // ============================================================================
 
+const HISTORY_STORAGE_KEY = 'math-cards-history:v1'
+const MAX_HISTORY = 10
+
+const canUseStorage = () => {
+  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
+}
+
+const readHistory = (): GameRunSummary[] => {
+  if (!canUseStorage()) return []
+  try {
+    const raw = window.localStorage.getItem(HISTORY_STORAGE_KEY)
+    if (!raw) return []
+    const data = JSON.parse(raw)
+    return Array.isArray(data) ? data : []
+  } catch {
+    return []
+  }
+}
+
+const writeHistory = (history: GameRunSummary[]) => {
+  if (!canUseStorage()) return
+  try {
+    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history))
+  } catch {
+    return
+  }
+}
+
+const buildRunSummary = (game: GameRun): GameRunSummary => {
+  const answeredQuestions = game.questions.filter((q) => q.result !== 'pending')
+  const correctCount = answeredQuestions.filter((q) => q.result === 'correct').length
+  const accuracy = answeredQuestions.length > 0 ? (correctCount / answeredQuestions.length) * 100 : 0
+  const timeTakenMs = Math.max(0, (game.endAt || Date.now()) - game.startAt)
+  return {
+    runId: game.runId,
+    mode: game.mode,
+    difficulty: game.difficulty,
+    score: game.score,
+    accuracy,
+    maxCombo: game.maxCombo,
+    speedStars: game.speedStars,
+    shieldUsed: game.shieldUsed,
+    questionsAnswered: answeredQuestions.length,
+    timeTakenMs,
+    completedAt: game.endAt || Date.now(),
+  }
+}
+
 export function useGame() {
   const [game, setGame] = useState<GameRun | null>(null)
+  const [history, setHistory] = useState<GameRunSummary[]>([])
   const questionStartTime = useRef<number>(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const lastSavedRunId = useRef<string | null>(null)
   
   // Initialize a new game
   const startGame = useCallback((mode: GameMode, difficulty: Difficulty) => {
@@ -312,6 +363,19 @@ export function useGame() {
     if (timerRef.current) clearInterval(timerRef.current)
     setGame(null)
   }, [])
+
+  const saveHistory = useCallback((summary: GameRunSummary) => {
+    setHistory(prev => {
+      const next = [summary, ...prev.filter(item => item.runId !== summary.runId)].slice(0, MAX_HISTORY)
+      writeHistory(next)
+      return next
+    })
+  }, [])
+
+  const clearHistory = useCallback(() => {
+    setHistory([])
+    writeHistory([])
+  }, [])
   
   // Calculate final stats
   const getStats = useCallback((): GameStats | null => {
@@ -336,6 +400,17 @@ export function useGame() {
       wrongQuestions,
     }
   }, [game])
+
+  useEffect(() => {
+    setHistory(readHistory())
+  }, [])
+
+  useEffect(() => {
+    if (!game || game.runState !== 'finished') return
+    if (lastSavedRunId.current === game.runId) return
+    saveHistory(buildRunSummary(game))
+    lastSavedRunId.current = game.runId
+  }, [game, saveHistory])
   
   // Cleanup timer on unmount
   useEffect(() => {
@@ -346,6 +421,7 @@ export function useGame() {
   
   return {
     game,
+    history,
     startGame,
     submitAnswer,
     nextQuestion,
@@ -354,5 +430,6 @@ export function useGame() {
     skipQuestion,
     resetGame,
     getStats,
+    clearHistory,
   }
 }

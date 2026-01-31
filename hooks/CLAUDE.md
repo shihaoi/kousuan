@@ -29,10 +29,12 @@ React Hooks 集合，管理应用状态。核心是 `use-game.ts` 游戏状态�
 export function useGame(): {
   // 状态
   game: GameRun | null          // 当前游戏状态
+  history: GameRunSummary[]     // 本地历史记录
   
   // 生命周期
   startGame: (mode: GameMode, difficulty: Difficulty) => void
   resetGame: () => void
+  clearHistory: () => void
   
   // 游戏操作
   submitAnswer: (input: string) => void
@@ -112,7 +114,7 @@ export function useGame(): {
 | 问题 | 影响 | 解决方案 |
 |------|------|----------|
 | 单 useState 管理复杂状态 | 状态更新可能不一致 | 改用 useReducer 或 XState |
-| 无持久化 | 刷新丢失 | 加 localStorage 同步 |
+| 仅本地历史 | 跨设备丢失 | 接入 DB + Auth |
 | 音效副作用内联 | 不可配置/关闭 | 抽离为可配置服务 |
 
 ---
@@ -133,6 +135,7 @@ hooks/use-game.ts
 | 日期 | 变更 | 文件 |
 |------|------|------|
 | 2026-01-31 | 初始实现 | use-game.ts |
+| 2026-01-31 | 增加本地历史持久化 | use-game.ts |
 | 2026-01-31 | 创建模块文档 | CLAUDE.md |
 
 ---

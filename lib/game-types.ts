@@ -5,7 +5,7 @@
  *
  * [INPUT]: 无外部依赖
  * [OUTPUT]: GAME_CONFIG, GameMode, Difficulty, Question, GameRun, GameStats,
- *           generateId, getComboMultiplier, calculateQuestionScore
+ *           GameRunSummary, generateId, getComboMultiplier, calculateQuestionScore
  * [POS]: lib 模块的核心类型定义，被 hooks/use-game.ts 和 components/game/* 消费
  * [PROTOCOL]: 变更时更新此头部，然后检查 lib/CLAUDE.md
  */
@@ -91,6 +91,20 @@ export interface GameStats {
   shieldUsed: number
   averageTime: number
   wrongQuestions: Question[]
+}
+
+export interface GameRunSummary {
+  runId: string
+  mode: GameMode
+  difficulty: Difficulty
+  score: number
+  accuracy: number
+  maxCombo: number
+  speedStars: number
+  shieldUsed: number
+  questionsAnswered: number
+  timeTakenMs: number
+  completedAt: number
 }
 
 // Helper to generate unique IDs

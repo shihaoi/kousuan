@@ -40,6 +40,7 @@ export type QuestionState = 'show' | 'input' | 'judge' | 'correct' | 'wrong_soft
 export interface Question { ... }
 export interface GameRun { ... }
 export interface GameStats { ... }
+export interface GameRunSummary { ... }
 
 // 计算函数
 export function generateId(): string
@@ -171,6 +172,7 @@ lib/*
 | 日期 | 变更 | 文件 |
 |------|------|------|
 | 2026-01-31 | 初始实现 | 全部 |
+| 2026-01-31 | 增加 GameRunSummary 类型 | game-types.ts |
 | 2026-01-31 | 创建模块文档 | CLAUDE.md |
 
 ---

@@ -18,7 +18,7 @@
 | 文件 | 职责 | 边界 |
 |------|------|------|
 | `game-container.tsx` | 状态路由器 | 根据 game.runState 切换页面 |
-| `game-start.tsx` | 开始页 | 模式/难度选择 UI |
+| `game-start.tsx` | 开始页 | 模式/难度选择 + 最近成绩 |
 | `game-hud.tsx` | 状态栏 | 分数/连击/速度星/护盾显示 |
 | `question-card.tsx` | 答题卡 | 题目展示 + 输入 + 动画 |
 | `game-results.tsx` | 结果页 | 统计 + 错题回顾 |
@@ -123,6 +123,7 @@ components/game/*
 | 日期 | 变更 | 文件 |
 |------|------|------|
 | 2026-01-31 | 添加 Framer Motion 动画 | question-card.tsx, game-hud.tsx, game-results.tsx |
+| 2026-01-31 | 增加最近成绩展示 | game-start.tsx |
 | 2026-01-31 | 中文化所有文本 | 全部 |
 | 2026-01-31 | 创建模块文档 | CLAUDE.md |
 

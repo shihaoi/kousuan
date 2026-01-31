@@ -1,3 +1,14 @@
+/**
+ * ============================================================================
+ * game-start.tsx - 开始页与模式选择
+ * ============================================================================
+ *
+ * [INPUT]: hooks/use-game (startGame + history), lib/game-types (类型),
+ *          components/ui/* (设计系统组件)
+ * [OUTPUT]: GameStart 组件
+ * [POS]: components/game 的开始页 UI，被 game-container.tsx 消费
+ * [PROTOCOL]: 变更时更新此头部，然后检查 components/game/CLAUDE.md
+ */
 'use client'
 
 import React from "react"
@@ -6,11 +17,13 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import type { GameMode, Difficulty } from '@/lib/game-types'
+import type { GameMode, Difficulty, GameRunSummary } from '@/lib/game-types'
 import { Zap, Clock, Target, Brain, Flame, Shield } from 'lucide-react'
 
 interface GameStartProps {
   onStart: (mode: GameMode, difficulty: Difficulty) => void
+  history: GameRunSummary[]
+  onClearHistory: () => void
 }
 
 const MODES: { value: GameMode; label: string; description: string; icon: React.ReactNode; questions: string }[] = [
@@ -58,9 +71,25 @@ const DIFFICULTIES: { value: Difficulty; label: string; description: string; col
   },
 ]
 
-export function GameStart({ onStart }: GameStartProps) {
+const getModeLabel = (mode: GameMode) => {
+  return MODES.find((item) => item.value === mode)?.label ?? '未知模式'
+}
+
+const getDifficultyLabel = (difficulty: Difficulty) => {
+  return DIFFICULTIES.find((item) => item.value === difficulty)?.label ?? '未知难度'
+}
+
+const formatDuration = (ms: number) => {
+  const totalSeconds = Math.max(0, Math.round(ms / 1000))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
+}
+
+export function GameStart({ onStart, history, onClearHistory }: GameStartProps) {
   const [selectedMode, setSelectedMode] = useState<GameMode>('main')
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('easy')
+  const recentHistory = history.slice(0, 5)
   
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -148,6 +177,46 @@ export function GameStart({ onStart }: GameStartProps) {
             ))}
           </CardContent>
         </Card>
+
+        {/* Recent History */}
+        {history.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <CardTitle className="text-lg">最近成绩</CardTitle>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={onClearHistory}>
+                清空
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {recentHistory.map((item) => (
+                <div
+                  key={item.runId}
+                  className="flex items-center justify-between rounded-lg border border-border/60 p-2 text-sm"
+                >
+                  <div className="space-y-1">
+                    <div className="font-medium text-foreground">
+                      {getModeLabel(item.mode)} · {getDifficultyLabel(item.difficulty)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(item.completedAt).toLocaleString('zh-CN', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </div>
+                  </div>
+                  <div className="text-right space-y-1">
+                    <div className="font-mono font-semibold text-primary">{item.score}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {Math.round(item.accuracy)}% · {formatDuration(item.timeTakenMs)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
         
         {/* Start Button */}
         <Button 
