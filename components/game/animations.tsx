@@ -41,7 +41,7 @@ export function CorrectAnimation({ show, onComplete }: CorrectAnimationProps) {
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 0.3, delay: 0.2 }}
             >
-              <Check className="w-14 h-14 text-white stroke-[3]" />
+              <Check className="w-14 h-14 text-white stroke-3" />
             </motion.div>
           </motion.div>
 

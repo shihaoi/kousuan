@@ -170,7 +170,7 @@ export function GameResults({ game, stats, onPlayAgain, onHome }: GameResultsPro
           <Card className="border-primary/20 overflow-hidden">
             <CardContent className="pt-6 relative">
               <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5"
+                className="absolute inset-0 bg-linear-to-r from-primary/5 via-primary/10 to-primary/5"
                 animate={{ x: ['-100%', '100%'] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               />
